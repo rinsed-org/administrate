@@ -44,7 +44,8 @@ describe Administrate::Search do
           }.freeze
 
           COLLECTION_FILTERS = {
-            vip: ->(resources) { resources.where(kind: :vip) },
+            vip: ->(resource) { resource.where(kind: :vip) },
+            kind: ->(resource, param) { resource.where(kind: param) },
           }.freeze
 
           # RINSED
