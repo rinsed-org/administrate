@@ -11,7 +11,9 @@ gem "redcarpet"
 gem "sentry-raven"
 gem "unicorn"
 gem "front_matter_parser", "1.0.0"
-gem "rails", "~> 6.0.4", ">= 6.0.4.4"
+gem "actionpack", "~> 5.2.0"
+gem "actionview", "~> 5.2.0"
+gem "activerecord", "~> 5.2.0"
 
 group :development, :test do
   gem "appraisal"
@@ -23,11 +25,12 @@ group :development, :test do
   gem "i18n-tasks", "0.9.34"
   gem "pry-rails"
   gem "yard"
+  gem "rspec-rails"
 end
 
 group :test do
   gem "ammeter"
-  gem "capybara", "3.36.0"
+  gem "capybara", "3.35.3"
   gem "database_cleaner"
   gem "formulaic"
   gem "launchy"
@@ -36,7 +39,6 @@ group :test do
   gem "shoulda-matchers"
   gem "timecop"
   gem "webmock"
-  gem "webrick"
   gem "xpath", "3.2.0"
 end
 
