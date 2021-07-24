@@ -337,7 +337,7 @@ DEPENDENCIES
   factory_bot_rails
   faker
   formulaic
-  front_matter_parser
+  front_matter_parser (= 1.0.0)
   globalid
   i18n-tasks (= 0.9.37)
   kaminari-i18n
@@ -360,4 +360,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   2.3.5
+   2.2.24
