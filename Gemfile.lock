@@ -304,8 +304,8 @@ GEM
     unicorn (6.0.0)
       kgio (~> 2.6)
       raindrops (~> 0.7)
-    webmock (3.13.0)
-      addressable (>= 2.3.6)
+    webmock (3.14.0)
+      addressable (>= 2.8.0)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.7.0)
@@ -333,7 +333,7 @@ DEPENDENCIES
   factory_bot_rails
   faker
   formulaic
-  front_matter_parser (= 1.0.0)
+  front_matter_parser
   globalid
   i18n-tasks (= 0.9.34)
   kaminari-i18n
