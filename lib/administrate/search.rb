@@ -48,8 +48,8 @@ module Administrate
       end
     end
 
-    def initialize(scoped_resource, dashboard_class, term)
-      @dashboard_class = dashboard_class
+    def initialize(scoped_resource, dashboard, term)
+      @dashboard = dashboard
       @scoped_resource = scoped_resource
       @query = Query.new(term, valid_filters.keys)
     end
@@ -133,9 +133,7 @@ module Administrate
     end
 
     def search_attributes
-      attribute_types.keys.select do |attribute|
-        attribute_types[attribute].searchable?
-      end
+      @dashboard.search_attributes
     end
 
     def search_results(resources)
@@ -145,8 +143,8 @@ module Administrate
     end
 
     def valid_filters
-      if @dashboard_class.const_defined?(:COLLECTION_FILTERS)
-        @dashboard_class.const_get(:COLLECTION_FILTERS).stringify_keys
+      if @dashboard.class.const_defined?(:COLLECTION_FILTERS)
+        @dashboard.class.const_get(:COLLECTION_FILTERS).stringify_keys
       else
         {}
       end
@@ -155,10 +153,10 @@ module Administrate
     def attribute_types
       # RINSED: Allow using dynamically-added attribute_types in our BaseDashboard.
       # TODO: Upstream this
-      if defined?(@dashboard_class.new.attribute_types)
-        @dashboard_class.new.attribute_types
+      if defined?(@dashboard.class.new.attribute_types)
+        @dashboard.class.new.attribute_types
       else
-        @dashboard_class::ATTRIBUTE_TYPES
+        @dashboard.class.const_get(:ATTRIBUTE_TYPES)
       end
       # END RINSED
     end
