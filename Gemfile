@@ -19,7 +19,11 @@ group :development, :test do
   gem "byebug"
   gem "dotenv-rails"
   gem "factory_bot_rails"
+<<<<<<< HEAD
   gem "i18n-tasks", "0.9.37"
+=======
+  gem "i18n-tasks", "0.9.35"
+>>>>>>> 7a7cfe1 (Bump i18n-tasks from 0.9.34 to 0.9.35 (#2057))
   gem "pry-rails"
   gem "yard"
 end
