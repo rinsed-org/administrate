@@ -184,7 +184,7 @@ GEM
       nokogiri (>= 1.5.9)
     mail (2.7.1)
       mini_mime (>= 0.1.1)
-    marcel (1.0.2)
+    marcel (1.0.1)
     matrix (0.4.2)
     method_source (0.9.2)
     mini_mime (1.1.2)
@@ -333,7 +333,7 @@ DEPENDENCIES
   awesome_print
   bundler-audit
   byebug
-  capybara
+  capybara (= 3.36.0)
   database_cleaner
   dotenv-rails
   factory_bot_rails
