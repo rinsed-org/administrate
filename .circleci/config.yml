@@ -47,6 +47,11 @@ commands:
 
 default_job: &default_job
   working_directory: ~/administrate
+  steps:
+    - shared_steps
+    # Run the tests against multiple versions of Rails
+    - run: bundle exec appraisal install
+    - run: bundle exec appraisal rspec
 
 jobs:
   ruby-26:
@@ -54,7 +59,6 @@ jobs:
     steps:
       - shared_steps
       # Run the tests against the versions of Rails that support Ruby 2.6
-      - run: bundle exec appraisal install
       - run: bundle exec appraisal rails50 rspec
       - run: bundle exec appraisal rails51 rspec
       - run: bundle exec appraisal rails52 rspec
@@ -77,7 +81,6 @@ jobs:
     steps:
       - shared_steps
       # Run the tests against the versions of Rails that support Ruby 2.7
-      - run: bundle exec appraisal install
       - run: bundle exec appraisal rails50 rspec
       - run: bundle exec appraisal rails51 rspec
       - run: bundle exec appraisal rails52 rspec
@@ -101,7 +104,6 @@ jobs:
     steps:
       - shared_steps
       # Run the tests against the versions of Rails that support Ruby 3.0
-      - run: bundle exec appraisal install
       - run: bundle exec appraisal rails60 rspec
       - run: bundle exec appraisal rails61 rspec
       - run: bundle exec appraisal rails70 rspec
@@ -122,7 +124,6 @@ jobs:
     steps:
       - shared_steps
       # Run the tests against the versions of Rails that support Ruby 3.1
-      - run: bundle exec appraisal install
       - run: bundle exec appraisal rails61 rspec
       - run: bundle exec appraisal rails70 rspec
     docker:
