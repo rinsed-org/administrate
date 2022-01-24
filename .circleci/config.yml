@@ -87,6 +87,12 @@ jobs:
 
   ruby-30:
     <<: *default_job
+    steps:
+      - shared_steps
+      # Run the tests against the versions of Rails that support Ruby 3
+      - run: bundle exec appraisal install
+      - run: bundle exec appraisal rails60 rspec
+      - run: bundle exec appraisal rails61 rspec
     docker:
       - image: circleci/ruby:3.0-node-browsers-legacy
         environment:
