@@ -5,6 +5,12 @@ Capybara.register_driver :chrome do |app|
 end
 
 Capybara.register_driver :headless_chrome do |app|
+  options = ::Selenium::WebDriver::Chrome::Options.new
+  options.headless!
+  options.add_argument "--window-size=1680,1050"
+  options.add_argument "--disable-gpu"
+  options.add_argument "--disable-dev-shm-usage"
+
   Capybara::Selenium::Driver.new(
     app,
     browser: :chrome,
