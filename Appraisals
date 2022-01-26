@@ -5,3 +5,7 @@ end
 appraise "rails61" do
   gem "rails", "~> 6.1.4", ">= 6.1.4.4"
 end
+
+appraise "rails70" do
+  gem "rails", "~> 6.1"
+end

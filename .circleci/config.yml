@@ -49,10 +49,9 @@ default_job: &default_job
   working_directory: ~/administrate
   steps:
     - shared_steps
+    # Run the tests against the versions of Rails that support Ruby 2.6
     # NOTE: the following steps have been commented out temporarily because of a breaking change in the appraisal gem
     # Its dependencies can no longer successfully be met and attempts to install it will fail.
-    #
-    # Run the tests against multiple versions of Rails
     # - run: bundle exec appraisal install
     # - run: bundle exec appraisal rspec
 
@@ -73,6 +72,8 @@ jobs:
 
   ruby-27:
     <<: *default_job
+    steps:
+      - shared_steps
     docker:
       - image: circleci/ruby:2.7
         environment:
@@ -89,10 +90,6 @@ jobs:
     <<: *default_job
     steps:
       - shared_steps
-      # Run the tests against the versions of Rails that support Ruby 3.0
-      - run: bundle exec appraisal install
-      - run: bundle exec appraisal rails60 rspec
-      - run: bundle exec appraisal rails61 rspec
     docker:
       - image: circleci/ruby:3.0-node-browsers-legacy
         environment:
@@ -109,9 +106,6 @@ jobs:
     <<: *default_job
     steps:
       - shared_steps
-      # Run the tests against the versions of Rails that support Ruby 3.1
-      - run: bundle exec appraisal install
-      - run: bundle exec appraisal rails61 rspec
     docker:
       - image: cimg/ruby:3.1-browsers
         environment:
