@@ -58,6 +58,8 @@ default_job: &default_job
 jobs:
   ruby-26:
     <<: *default_job
+    steps:
+      - shared_steps
     docker:
       - image: circleci/ruby:2.6.3
         environment:
