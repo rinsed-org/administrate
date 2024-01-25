@@ -50,6 +50,7 @@ module Administrate
 
     def initialize(scoped_resource, dashboard, term)
       @dashboard = dashboard
+      @dashboard_class = dashboard.class
       @scoped_resource = scoped_resource
       @query = Query.new(term, valid_filters.keys)
     end
@@ -126,7 +127,14 @@ module Administrate
     end
 
     def attribute_types
-      @dashboard.class.const_get(:ATTRIBUTE_TYPES)
+      # RINSED: Allow using dynamically-added attribute_types in our BaseDashboard.
+      # TODO: Upstream this
+      if defined?(@dashboard_class.new.attribute_types)
+        @dashboard_class.new.attribute_types
+      else
+        @dashboard_class::ATTRIBUTE_TYPES
+      end
+      # END RINSED
     end
 
     def query_table_name(attr)
