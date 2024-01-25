@@ -126,7 +126,14 @@ module Administrate
     end
 
     def attribute_types
-      @dashboard.class.const_get(:ATTRIBUTE_TYPES)
+      # RINSED: Allow using dynamically-added attribute_types in our BaseDashboard.
+      # TODO: Upstream this to Administrate
+      if defined?(@dashboard.class.new.attribute_types)
+        @dashboard.class.new.attribute_types
+      else
+        @dashboard.class.const_get(:ATTRIBUTE_TYPES)
+      end
+      # END RINSED
     end
 
     def query_table_name(attr)
