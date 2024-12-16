@@ -11,6 +11,15 @@ module Administrate
 
       order = "#{relation.table_name}.#{attribute} #{direction}"
 
+      # RINSED Add "id desc" to avoid random ordering when sorting on nullable columns
+      order =
+      if relation.primary_key.is_a?(String) # ensure primary key exists and is not a composite key
+        [Arel.sql(order), { relation.primary_key => :desc }]
+      else
+        Arel.sql(order)
+      end
+      # RINSED END
+
       return relation.reorder(Arel.sql(order)) if
         relation.columns_hash.keys.include?(attribute.to_s)
 
