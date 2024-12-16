@@ -20,7 +20,7 @@ module Administrate
       end
       # RINSED END
 
-      return relation.reorder(Arel.sql(order)) if
+      return relation.reorder(order) if
         relation.columns_hash.keys.include?(attribute.to_s)
 
       relation
