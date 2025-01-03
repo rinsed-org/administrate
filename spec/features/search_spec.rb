@@ -3,8 +3,8 @@ require "rails_helper"
 feature "Search" do
   scenario "admin searches for customer by email", :js do
     query = "bar@baz.com"
-    perfect_match = create(:customer, email: "bar@baz.com", name: "Perfect")
-    partial_match = create(:customer, email: "foobar@baz.com", name: "Perfectionist")
+    perfect_match = create(:customer, email: "bar@baz.com")
+    partial_match = create(:customer, email: "foobar@baz.com")
     mismatch = create(:customer, email: "other@baz.com")
 
     visit admin_customers_path
