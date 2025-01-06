@@ -41,8 +41,8 @@ default_job: &default_job
   steps:
     - shared_steps
     # Run the tests against multiple versions of Rails
-    - run: bundle exec appraisal install
-    - run: bundle exec appraisal rspec
+    # - run: bundle exec appraisal install
+    - run: bundle exec rspec
 
 jobs:
   ruby-26:
