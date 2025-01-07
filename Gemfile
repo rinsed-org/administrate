@@ -6,7 +6,8 @@ gem "administrate-field-image"
 gem "faker"
 gem "front_matter_parser"
 gem "globalid"
-gem "kaminari", github: "rinsed-org/kaminari", branch: :master, ref: "e09afb0", require: true
+gem "kaminari", path: "/Users/fabrice/Rinsed/kaminari" # github: "rinsed-org/kaminari", branch: :master, ref: "e09afb0", require: true
+gem "kaminari-core", path: "/Users/fabrice/Rinsed/kaminari/kaminari-core" # github: "rinsed-org/kaminari", branch: :master, ref: "e09afb0", require: true
 gem "kaminari-i18n"
 gem "pg"
 gem "redcarpet"
