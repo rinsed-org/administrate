@@ -26,7 +26,6 @@ PATH
       activerecord (>= 5.0)
       datetime_picker_rails (~> 0.0.7)
       jquery-rails (>= 4.0)
-      kaminari (>= 1.0)
       momentjs-rails (~> 2.8)
       sassc-rails (~> 2.1)
       selectize-rails (~> 0.6)
