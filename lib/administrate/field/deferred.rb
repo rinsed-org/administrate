@@ -36,7 +36,7 @@ module Administrate
       end
 
       def search_lower?
-        true
+        options.fetch(:search_lower, deferred_class.search_lower?)
       end
 
       def searchable_field
