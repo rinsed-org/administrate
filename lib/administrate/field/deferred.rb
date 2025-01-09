@@ -35,6 +35,10 @@ module Administrate
         options.fetch(:search_exact, deferred_class.search_exact?)
       end
 
+      def self.search_lower?
+        true
+      end
+
       def searchable_field
         ActiveSupport::Deprecation.warn(
           "searchable_field is deprecated, use searchable_fields instead",

@@ -26,6 +26,10 @@ module Administrate
         false
       end
 
+      def self.search_lower?
+        true
+      end
+
       def self.field_type
         to_s.split("::").last.underscore
       end

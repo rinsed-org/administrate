@@ -86,9 +86,17 @@ module Administrate
           # RINSED: add support for exact matches only in search for query efficiency
           # eg. searching by email address in the (very large) emails table
           if attribute_types[attr].search_exact?
-            "LOWER(#{table_name}.#{column_name}) = ?"
+            if attribute_types[attr].search_lower?
+              "LOWER(#{table_name}.#{column_name}) = ?"
+            else
+              "#{table_name}.#{column_name} = ?"
+            end
           else
-            "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
+            if attribute_types[attr].search_lower?
+              "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
+            else
+              "CAST(#{table_name}.#{column_name} AS CHAR(256)) LIKE ?"
+            end
           end
         end.join(" OR ")
       end.join(" OR ")
@@ -106,10 +114,16 @@ module Administrate
       search_attributes.flat_map do |attr|
         attribute_type = attribute_types[attr]
 
-        if attribute_type.search_exact?
-          ["#{term.mb_chars.downcase}"] * searchable_fields(attr).count
+        search_term = if attribute_type.search_lower?
+          term.mb_chars.downcase
         else
-          ["%#{term.mb_chars.downcase}%"] * searchable_fields(attr).count
+          term.mb_chars
+        end
+
+        if attribute_type.search_exact?
+          [search_term] * searchable_fields(attr).count
+        else
+          ["%#{search_term}%"] * searchable_fields(attr).count
         end
       end
     end
