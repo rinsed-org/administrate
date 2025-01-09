@@ -35,7 +35,7 @@ module Administrate
         options.fetch(:search_exact, deferred_class.search_exact?)
       end
 
-      def self.search_lower?
+      def search_lower?
         true
       end
 
