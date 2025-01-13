@@ -85,18 +85,15 @@ module Administrate
           column_name = column_to_query(field)
           # RINSED: add support for exact matches only in search for query efficiency
           # eg. searching by email address in the (very large) emails table
+          attribute_type = attribute_types[attr]
+
+          search_target = "#{table_name}.#{column_name}"
+          search_target = "LOWER(CAST(#{search_target} AS CHAR(256)))" if attribute_type.search_lower?
+
           if attribute_types[attr].search_exact?
-            if attribute_types[attr].search_lower?
-              "LOWER(#{table_name}.#{column_name}) = ?"
-            else
-              "#{table_name}.#{column_name} = ?"
-            end
+            "#{search_target} = ?"
           else
-            if attribute_types[attr].search_lower?
-              "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
-            else
-              "CAST(#{table_name}.#{column_name} AS CHAR(256)) LIKE ?"
-            end
+            "#{search_target} LIKE ?"
           end
         end.join(" OR ")
       end.join(" OR ")
