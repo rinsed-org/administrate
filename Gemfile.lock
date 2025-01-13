@@ -328,7 +328,6 @@ DEPENDENCIES
   administrate!
   administrate-field-image
   ammeter
-  appraisal
   awesome_print
   bundler-audit
   byebug
