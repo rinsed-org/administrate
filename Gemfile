@@ -14,7 +14,6 @@ gem "sentry-raven"
 gem "unicorn"
 
 group :development, :test do
-  gem "appraisal"
   gem "awesome_print"
   gem "bundler-audit", require: false
   gem "byebug"
