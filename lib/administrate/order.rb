@@ -13,7 +13,8 @@ module Administrate
 
       # RINSED Add "id desc" to avoid random ordering when sorting on nullable columns
       order =
-      if relation.primary_key.is_a?(String) # ensure primary key exists and is not a composite key
+      if relation.primary_key.is_a?(String) && relation.columns_hash.key?(relation.primary_key)
+        # Use primary key as secondary sort only if it exists and is a simple key
         [Arel.sql(order), { relation.primary_key => :desc }]
       else
         Arel.sql(order)
@@ -70,14 +71,30 @@ module Administrate
     def order_by_count(relation)
       klass = reflect_association(relation).klass
       query = "COUNT(#{klass.table_name}.#{klass.primary_key}) #{direction}"
-      relation.
+      
+      # RINSED: Add secondary sorting by primary key for consistency
+      result = relation.
         left_joins(attribute.to_sym).
-        group(:id).
-        reorder(Arel.sql(query))
+        group(:id)
+        
+      if relation.primary_key.is_a?(String) && relation.columns_hash.key?(relation.primary_key)
+        result.reorder(Arel.sql(query), relation.primary_key => :desc)
+      else
+        result.reorder(Arel.sql(query))
+      end
+      # RINSED END
     end
 
     def order_by_id(relation)
-      relation.reorder("#{foreign_key(relation)} #{direction}")
+      # RINSED: Add secondary sorting by primary key for consistency
+      order_sql = "#{foreign_key(relation)} #{direction}"
+      
+      if relation.primary_key.is_a?(String) && relation.columns_hash.key?(relation.primary_key)
+        relation.reorder(Arel.sql(order_sql), relation.primary_key => :desc)
+      else
+        relation.reorder(Arel.sql(order_sql))
+      end
+      # RINSED END
     end
 
     def has_many_attribute?(relation)
