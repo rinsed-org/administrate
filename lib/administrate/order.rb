@@ -71,30 +71,14 @@ module Administrate
     def order_by_count(relation)
       klass = reflect_association(relation).klass
       query = "COUNT(#{klass.table_name}.#{klass.primary_key}) #{direction}"
-      
-      # RINSED: Add secondary sorting by primary key for consistency
-      result = relation.
+      relation.
         left_joins(attribute.to_sym).
-        group(:id)
-        
-      if relation.primary_key.is_a?(String) && relation.columns_hash.key?(relation.primary_key)
-        result.reorder(Arel.sql(query), relation.primary_key => :desc)
-      else
-        result.reorder(Arel.sql(query))
-      end
-      # RINSED END
+        group(:id).
+        reorder(Arel.sql(query))
     end
 
     def order_by_id(relation)
-      # RINSED: Add secondary sorting by primary key for consistency
-      order_sql = "#{foreign_key(relation)} #{direction}"
-      
-      if relation.primary_key.is_a?(String) && relation.columns_hash.key?(relation.primary_key)
-        relation.reorder(Arel.sql(order_sql), relation.primary_key => :desc)
-      else
-        relation.reorder(Arel.sql(order_sql))
-      end
-      # RINSED END
+      relation.reorder("#{foreign_key(relation)} #{direction}")
     end
 
     def has_many_attribute?(relation)
