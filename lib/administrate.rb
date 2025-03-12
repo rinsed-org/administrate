@@ -20,4 +20,22 @@ module Administrate
       "if you think otherwise.",
     )
   end
+
+  def self.warn_of_deprecated_method(klass, method)
+    ActiveSupport::Deprecation.warn(
+      "The method #{klass}##{method} is deprecated. " +
+      "If you are seeing this message you are probably " +
+      "using a dashboard that depends explicitly on it. " +
+      "Please make sure you update it to a version that " +
+      "does not use a deprecated API",
+    )
+  end
+
+  def self.warn_of_deprecated_authorization_method(method)
+    ActiveSupport::Deprecation.warn(
+      "The method `#{method}` is deprecated. " +
+      "Please use `accessible_action?` instead, " +
+      "or see the documentation for other options.",
+    )
+  end
 end

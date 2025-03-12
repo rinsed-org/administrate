@@ -17,11 +17,10 @@ gem "rails", "~> 6.1"
 group :development, :test do
   gem "appraisal"
   gem "awesome_print"
-  gem "bundler-audit", require: false
   gem "byebug"
   gem "dotenv-rails"
   gem "factory_bot_rails"
-  gem "i18n-tasks", "0.9.37"
+  gem "i18n-tasks", "1.0.11"
   gem "pry-rails"
   gem "yard"
 end

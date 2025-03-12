@@ -4,11 +4,7 @@ module Administrate
     SINGULAR_COUNT = 1
 
     def application_title
-      if Rails::VERSION::MAJOR <= 5
-        Rails.application.class.parent_name.titlecase
-      else
-        Rails.application.class.module_parent_name.titlecase
-      end
+      Rails.application.class.module_parent_name.titlecase
     end
 
     def render_field(field, locals = {})
@@ -27,6 +23,28 @@ module Administrate
     def model_from_resource(resource_name)
       dashboard = dashboard_from_resource(resource_name)
       dashboard.try(:model) || resource_name.to_sym
+    end
+
+    # Unification of
+    # {Administrate::ApplicationController#existing_action? existing_action?}
+    # and
+    # {Administrate::ApplicationController#authorized_action?
+    # authorized_action?}
+    #
+    # @param target [ActiveRecord::Base, Class, Symbol, String] A resource,
+    #   a class of resources, or the name of a class of resources.
+    # @param action_name [String, Symbol] The name of an action that might be
+    #   possible to perform on a resource or resource class.
+    # @return [Boolean] Whether the action both (a) exists for the record class,
+    #   and (b) the current user is authorized to perform it on the record
+    #   instance or class.
+    def accessible_action?(target, action_name)
+      target = target.to_sym if target.is_a?(String)
+      target_class_or_class_name =
+        target.is_a?(ActiveRecord::Base) ? target.class : target
+
+      existing_action?(target_class_or_class_name, action_name) &&
+        authorized_action?(target, action_name)
     end
 
     def display_resource_name(resource_name, opts = {})
@@ -52,7 +70,7 @@ module Administrate
     end
 
     def sanitized_order_params(page, current_field_name)
-      collection_names = page.item_includes + [current_field_name]
+      collection_names = page.item_associations + [current_field_name]
       association_params = collection_names.map do |assoc_name|
         { assoc_name => %i[order direction page per_page] }
       end

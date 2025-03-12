@@ -11,16 +11,14 @@ Gem::Specification.new do |s|
   s.summary = "A Rails engine for creating super-flexible admin dashboards"
   s.license = "MIT"
 
-  s.files = Dir["{app,config,db,lib,docs}/**/*", "LICENSE", "Rakefile"]
+  s.files = Dir["{app,lib,docs}/**/*", "config/locales/**/*", "LICENSE", "Rakefile"]
 
   s.add_dependency "actionpack", ">= 5.0"
   s.add_dependency "actionview", ">= 5.0"
   s.add_dependency "activerecord", ">= 5.0"
 
-  s.add_dependency "datetime_picker_rails", "~> 0.0.7"
   s.add_dependency "jquery-rails", ">= 4.0"
   s.add_dependency "kaminari", ">= 1.0"
-  s.add_dependency "momentjs-rails", "~> 2.8"
   s.add_dependency "sassc-rails", "~> 2.1"
   s.add_dependency "selectize-rails", "~> 0.6"
 

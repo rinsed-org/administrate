@@ -10,10 +10,8 @@ class OrderDashboard < Administrate::BaseDashboard
     address_city: Field::String,
     address_state: Field::String,
     address_zip: Field::String,
-    customer: Field::BelongsTo,
-    line_items: Field::HasMany.with_options(
-      collection_attributes: %i[product quantity unit_price total_price],
-    ),
+    customer: Field::BelongsTo.with_options(order: "name"),
+    line_items: Field::HasMany,
     total_price: Field::Number.with_options(prefix: "$", decimals: 2),
     shipped_at: Field::DateTime,
     payments: Field::HasMany,

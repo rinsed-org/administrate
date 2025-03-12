@@ -35,15 +35,13 @@ commands:
 
       # Setup the environment
       - run: cp .sample.env .env
+      - run: cp spec/example_app/config/database.yml.sample spec/example_app/config/database.yml
 
       # Setup the database
       - run: bundle exec rake db:setup
 
       # Run the tests
       - run: bundle exec rspec
-
-      # Check vulnerabilities
-      - run: bundle exec rake bundler:audit
 
 default_job: &default_job
   working_directory: ~/administrate
@@ -56,20 +54,6 @@ default_job: &default_job
     # - run: bundle exec appraisal rspec
 
 jobs:
-  ruby-26:
-    <<: *default_job
-    docker:
-      - image: circleci/ruby:2.6.3
-        environment:
-          PGHOST: localhost
-          PGUSER: administrate
-          RAILS_ENV: test
-      - image: postgres:10.1-alpine
-        environment:
-          POSTGRES_USER: administrate
-          POSTGRES_DB: ruby26
-          POSTGRES_PASSWORD: ""
-
   ruby-27:
     <<: *default_job
     steps:
@@ -125,4 +109,3 @@ workflows:
       - ruby-31
       - ruby-30
       - ruby-27
-      - ruby-26
