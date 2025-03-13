@@ -1,3 +1,5 @@
+require "active_record"
+require "administrate/order"
 
 describe Administrate::Order do
   describe "#apply" do
