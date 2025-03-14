@@ -2,7 +2,7 @@
 version: 2.1
 
 orbs:
-  browser-tools: circleci/browser-tools@1.2.4
+  browser-tools: circleci/browser-tools@1.4.1
 
 commands:
   shared_steps:
@@ -57,7 +57,7 @@ jobs:
   ruby-26:
     <<: *default_job
     docker:
-      - image: circleci/ruby:2.6.3
+      - image: cimg/ruby:2.6.3-browsers
         environment:
           PGHOST: localhost
           PGUSER: administrate
@@ -71,7 +71,7 @@ jobs:
   ruby-27:
     <<: *default_job
     docker:
-      - image: circleci/ruby:2.7
+      - image: cimg/ruby:2.7-browsers
         environment:
           PGHOST: localhost
           PGUSER: administrate
@@ -85,7 +85,7 @@ jobs:
   ruby-30:
     <<: *default_job
     docker:
-      - image: circleci/ruby:3.0
+      - image: cimg/ruby:3.0-browsers
         environment:
           PGHOST: localhost
           PGUSER: administrate
