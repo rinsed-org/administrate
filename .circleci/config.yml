@@ -54,19 +54,6 @@ default_job: &default_job
     # - run: bundle exec appraisal rspec
 
 jobs:
-  ruby-26:
-    <<: *default_job
-    docker:
-      - image: cimg/ruby:2.6.3-browsers
-        environment:
-          PGHOST: localhost
-          PGUSER: administrate
-          RAILS_ENV: test
-      - image: postgres:10.1-alpine
-        environment:
-          POSTGRES_USER: administrate
-          POSTGRES_DB: ruby26
-          POSTGRES_PASSWORD: ""
 
   ruby-27:
     <<: *default_job
@@ -117,4 +104,3 @@ workflows:
       - ruby-31
       - ruby-30
       - ruby-27
-      - ruby-26
