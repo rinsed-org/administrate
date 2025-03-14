@@ -7,8 +7,10 @@ orbs:
 commands:
   shared_steps:
     steps:
-      - browser-tools/install-chrome
-      - browser-tools/install-chromedriver
+      - browser-tools/install-chrome:
+          chrome-version: 112.0.5615.49
+      - browser-tools/install-chromedriver:
+          chrome-version: 112.0.5615.49
 
       - checkout
 
