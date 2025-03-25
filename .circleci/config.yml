@@ -99,7 +99,6 @@ jobs:
           POSTGRES_PASSWORD: ""
 
 workflows:
-  version: 2
   multiple-rubies:
     jobs:
       - ruby-31
