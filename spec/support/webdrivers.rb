@@ -1,11 +1,11 @@
 require "selenium/webdriver"
 
-# Set chromedriver version based on Ruby version to ensure CI compatibility
-if RUBY_VERSION.start_with?('3.0') || RUBY_VERSION.start_with?('3.1')
-  # For Ruby 3.0 and 3.1, use a specific compatible version
-  Webdrivers::Chromedriver.required_version = "134.0.6998.165"
-end
-# Ruby 2.7 seems to work with the default mechanism
+# # Set chromedriver version based on Ruby version to ensure CI compatibility
+# if RUBY_VERSION.start_with?('3.0') || RUBY_VERSION.start_with?('3.1')
+#   # For Ruby 3.0 and 3.1, use a specific compatible version
+#   Webdrivers::Chromedriver.required_version = "134.0.6998.165"
+# end
+# # Ruby 2.7 seems to work with the default mechanism
 
 Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new(app, browser: :chrome)
