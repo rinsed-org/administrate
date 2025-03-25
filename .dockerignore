@@ -1,0 +1,10 @@
+.git
+.github
+tmp/
+log/
+.bundle/
+.byebug_history
+coverage/
+spec/example_app/tmp/
+spec/example_app/log/
+node_modules/
