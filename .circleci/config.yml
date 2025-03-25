@@ -21,8 +21,7 @@ commands:
           key: administrate-{{ checksum "Gemfile.lock" }}
 
       # Bundle install dependencies
-      - run: bundle config set --local path 'vendor/bundle'
-      - run: bundle install
+      - run: bundle install --path vendor/bundle
 
       # Cache Dependencies
       - save_cache:
