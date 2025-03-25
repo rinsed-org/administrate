@@ -1,8 +1,6 @@
 name: CI
 
 on:
-  push:
-    branches: [ "**" ]
   pull_request:
     branches: [ "**" ]
 
@@ -58,8 +56,11 @@ jobs:
           fi
           cp spec/example_app/config/database.yml.sample spec/example_app/config/database.yml
 
-      - name: Setup database
-        run: bundle exec rake db:setup
+      - name: Setup database schema
+        run: |
+          cd spec/example_app
+          bundle exec rails db:create db:schema:load
+          cd ../..
 
       - name: Run tests
         run: bundle exec rspec
