@@ -156,8 +156,10 @@ module Administrate
       # TODO: Upstream this
       if defined?(@dashboard_class.new.attribute_types)
         @dashboard_class.new.attribute_types
+      elsif @dashboard_class.const_defined?(:ATTRIBUTE_TYPES)
+        @dashboard_class.const_get(:ATTRIBUTE_TYPES)
       else
-        @dashboard_class::ATTRIBUTE_TYPES
+        {}
       end
       # END RINSED
     end
