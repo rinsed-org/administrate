@@ -328,7 +328,7 @@ DEPENDENCIES
   awesome_print
   bundler-audit
   byebug
-  capybara (~> 3.39.0)
+  capybara
   database_cleaner
   dotenv-rails
   factory_bot_rails
@@ -336,10 +336,11 @@ DEPENDENCIES
   formulaic
   front_matter_parser
   globalid
-  i18n-tasks (= 0.9.37)
+  i18n-tasks
   kaminari-i18n
   launchy
   pg
+  pry
   pry-rails
   pundit
   rack-timeout
@@ -352,7 +353,7 @@ DEPENDENCIES
   unicorn
   webmock
   webrick
-  xpath (= 3.2.0)
+  xpath
   yard
 
 BUNDLED WITH
