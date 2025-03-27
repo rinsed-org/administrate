@@ -131,6 +131,7 @@ module Administrate
           ["%#{search_term}%"] * searchable_fields(attr).count
         end
       end
+      # END RINSED
     end
 
     def search_attributes
