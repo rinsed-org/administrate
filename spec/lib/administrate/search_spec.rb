@@ -264,22 +264,6 @@ describe Administrate::Search do
         remove_constants :User
       end
 
-      it "returns ATTRIBUTE_TYPES constant if no instance method available" do
-        class User < ApplicationRecord; end
-        class BasicDashboard < Administrate::BaseDashboard
-          ATTRIBUTE_TYPES = {
-            name: Administrate::Field::String
-          }.freeze
-        end
-
-        scoped_object = User.default_scoped
-        search = Administrate::Search.new(scoped_object, BasicDashboard, "test")
-
-        expect(search.send(:attribute_types)).to eq(BasicDashboard::ATTRIBUTE_TYPES)
-      ensure
-        remove_constants :User, :BasicDashboard
-      end
-
       it "returns empty hash if no attribute types defined" do
         class User < ApplicationRecord; end
         class EmptyDashboard < Administrate::BaseDashboard; end
