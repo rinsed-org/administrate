@@ -14,13 +14,13 @@ gem "sentry-raven"
 gem "unicorn"
 
 group :development, :test do
-  gem "appraisal"
   gem "awesome_print"
   gem "bundler-audit", require: false
   gem "byebug"
   gem "dotenv-rails"
   gem "factory_bot_rails"
-  gem "i18n-tasks", "0.9.37"
+  gem "i18n-tasks"
+  gem "pry"
   gem "pry-rails"
   gem "yard"
 end
@@ -34,10 +34,9 @@ group :test do
   gem "selenium-webdriver"
   gem "shoulda-matchers"
   gem "timecop"
-  gem "webdrivers"
   gem "webmock"
   gem "webrick"
-  gem "xpath", "3.2.0"
+  gem "xpath"
 end
 
 group :staging, :production do

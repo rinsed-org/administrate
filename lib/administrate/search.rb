@@ -50,6 +50,7 @@ module Administrate
 
     def initialize(scoped_resource, dashboard, term)
       @dashboard = dashboard
+      @dashboard_class = dashboard.class
       @scoped_resource = scoped_resource
       @query = Query.new(term, valid_filters.keys)
     end
@@ -89,7 +90,19 @@ module Administrate
         table_name = query_table_name(attr)
         searchable_fields(attr).map do |field|
           column_name = column_to_query(field)
-          "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
+          # RINSED: add support for exact matches only in search for query efficiency
+          # eg. searching by email address in the (very large) emails table
+          attribute_type = attribute_types[attr]
+
+          search_target = "#{table_name}.#{column_name}"
+          search_target = "CAST(#{search_target} AS CHAR(256))" unless attribute_type.search_exact?
+          search_target = "LOWER(#{search_target})" if attribute_type.search_lower?
+
+          if attribute_type.search_exact?
+            "#{search_target} = ?"
+          else
+            "#{search_target} LIKE ?"
+          end
         end.join(" OR ")
       end.join(" OR ")
     end
@@ -101,10 +114,24 @@ module Administrate
     end
 
     def query_values
-      fields_count = search_attributes.sum do |attr|
-        searchable_fields(attr).count
+      # RINSED: add support for exact matches only in search for query efficiency
+      # eg. searching by email address in the (very large) emails table
+      search_attributes.flat_map do |attr|
+        attribute_type = attribute_types[attr]
+
+        search_term = if attribute_type.search_lower?
+          term.mb_chars.downcase
+        else
+          term.mb_chars
+        end
+
+        if attribute_type.search_exact?
+          [search_term] * searchable_fields(attr).count
+        else
+          ["%#{search_term}%"] * searchable_fields(attr).count
+        end
       end
-      ["%#{term.mb_chars.downcase}%"] * fields_count
+      # END RINSED
     end
 
     def search_attributes
@@ -126,7 +153,16 @@ module Administrate
     end
 
     def attribute_types
-      @dashboard.class.const_get(:ATTRIBUTE_TYPES)
+      # RINSED: Allow using dynamically-added attribute_types in our BaseDashboard.
+      # TODO: Upstream this
+      if defined?(@dashboard_class.new.attribute_types)
+        @dashboard_class.new.attribute_types
+      elsif @dashboard_class.const_defined?(:ATTRIBUTE_TYPES)
+        @dashboard_class.const_get(:ATTRIBUTE_TYPES)
+      else
+        {}
+      end
+      # END RINSED
     end
 
     def query_table_name(attr)
