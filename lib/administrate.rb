@@ -1,8 +1,9 @@
 require "administrate/engine"
+require "administrate/version"
 
 module Administrate
   def self.warn_of_missing_resource_class
-    ActiveSupport::Deprecation.warn(
+    deprecator.warn(
       "Calling Field::Base.permitted_attribute without the option " +
       ":resource_class is deprecated. If you are seeing this " +
       "message, you are probably using a custom field type that" +
@@ -12,12 +13,16 @@ module Administrate
   end
 
   def self.warn_of_deprecated_option(name)
-    ActiveSupport::Deprecation.warn(
+    deprecator.warn(
       "The option :#{name} is deprecated. " +
       "Administrate should detect it automatically. " +
       "Please file an issue at " +
       "https://github.com/thoughtbot/administrate/issues " +
       "if you think otherwise.",
     )
+  end
+
+  def self.deprecator
+    @deprecator ||= ActiveSupport::Deprecation.new(VERSION, "Administrate")
   end
 end
