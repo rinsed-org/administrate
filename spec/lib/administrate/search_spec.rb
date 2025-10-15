@@ -187,7 +187,7 @@ describe Administrate::Search do
       )
       expected_query = [
         [
-          'LOWER("users"."name") = ?',
+          'LOWER(CAST("users"."name" AS CHAR(256))) = ?',
           'LOWER(CAST("users"."email" AS CHAR(256))) LIKE ?',
         ].join(" OR "),
         "test",
