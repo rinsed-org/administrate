@@ -140,6 +140,99 @@ describe Administrate::Search do
       remove_constants :User
     end
 
+    it "skips CAST when search_skip_cast is true" do
+      class User < ApplicationRecord; end
+      class UserDashboardWithSkipCast < Administrate::BaseDashboard
+        ATTRIBUTE_TYPES = {
+          name: Administrate::Field::String.with_options(search_skip_cast: true),
+          email: Administrate::Field::Email,
+        }.freeze
+      end
+
+      scoped_object = User.default_scoped
+      search = Administrate::Search.new(
+        scoped_object,
+        UserDashboardWithSkipCast.new,
+        "test",
+      )
+      expected_query = [
+        [
+          'LOWER("users"."name") LIKE ?',
+          'LOWER(CAST("users"."email" AS CHAR(256))) LIKE ?',
+        ].join(" OR "),
+        "%test%",
+        "%test%",
+      ]
+      expect(scoped_object).to receive(:where).with(*expected_query)
+
+      search.run
+    ensure
+      remove_constants :User, :UserDashboardWithSkipCast
+    end
+
+    it "uses exact match with = when search_exact is true" do
+      class User < ApplicationRecord; end
+      class UserDashboardWithExact < Administrate::BaseDashboard
+        ATTRIBUTE_TYPES = {
+          name: Administrate::Field::String.with_options(search_exact: true),
+          email: Administrate::Field::Email,
+        }.freeze
+      end
+
+      scoped_object = User.default_scoped
+      search = Administrate::Search.new(
+        scoped_object,
+        UserDashboardWithExact.new,
+        "test",
+      )
+      expected_query = [
+        [
+          'LOWER(CAST("users"."name" AS CHAR(256))) = ?',
+          'LOWER(CAST("users"."email" AS CHAR(256))) LIKE ?',
+        ].join(" OR "),
+        "test",
+        "%test%",
+      ]
+      expect(scoped_object).to receive(:where).with(*expected_query)
+
+      search.run
+    ensure
+      remove_constants :User, :UserDashboardWithExact
+    end
+
+    it "combines search_skip_cast and search_exact options" do
+      class User < ApplicationRecord; end
+      class UserDashboardCombined < Administrate::BaseDashboard
+        ATTRIBUTE_TYPES = {
+          name: Administrate::Field::String.with_options(
+            search_skip_cast: true,
+            search_exact: true,
+          ),
+          email: Administrate::Field::Email,
+        }.freeze
+      end
+
+      scoped_object = User.default_scoped
+      search = Administrate::Search.new(
+        scoped_object,
+        UserDashboardCombined.new,
+        "test",
+      )
+      expected_query = [
+        [
+          'LOWER("users"."name") = ?',
+          'LOWER(CAST("users"."email" AS CHAR(256))) LIKE ?',
+        ].join(" OR "),
+        "test",
+        "%test%",
+      ]
+      expect(scoped_object).to receive(:where).with(*expected_query)
+
+      search.run
+    ensure
+      remove_constants :User, :UserDashboardCombined
+    end
+
     it "converts search term LOWER case for latin and cyrillic strings" do
       class User < ApplicationRecord; end
       scoped_object = User.default_scoped
