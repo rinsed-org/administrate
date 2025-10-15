@@ -98,6 +98,70 @@ describe Administrate::Field::Deferred do
     end
   end
 
+  describe "#search_skip_cast?" do
+    context "when given a `search_skip_cast` option" do
+      it "returns the value given" do
+        skip_cast_deferred = Administrate::Field::Deferred.new(
+          double(search_skip_cast?: false),
+          search_skip_cast: true,
+        )
+        cast_deferred = Administrate::Field::Deferred.new(
+          double(search_skip_cast?: true),
+          search_skip_cast: false,
+        )
+
+        expect(skip_cast_deferred.search_skip_cast?).to eq(true)
+        expect(cast_deferred.search_skip_cast?).to eq(false)
+      end
+    end
+
+    context "when not given a `search_skip_cast` option" do
+      it "falls back to the default of the deferred class" do
+        skip_cast_deferred = Administrate::Field::Deferred.new(
+          double(search_skip_cast?: true),
+        )
+        cast_deferred = Administrate::Field::Deferred.new(
+          double(search_skip_cast?: false),
+        )
+
+        expect(skip_cast_deferred.search_skip_cast?).to eq(true)
+        expect(cast_deferred.search_skip_cast?).to eq(false)
+      end
+    end
+  end
+
+  describe "#search_exact?" do
+    context "when given a `search_exact` option" do
+      it "returns the value given" do
+        exact_deferred = Administrate::Field::Deferred.new(
+          double(search_exact?: false),
+          search_exact: true,
+        )
+        fuzzy_deferred = Administrate::Field::Deferred.new(
+          double(search_exact?: true),
+          search_exact: false,
+        )
+
+        expect(exact_deferred.search_exact?).to eq(true)
+        expect(fuzzy_deferred.search_exact?).to eq(false)
+      end
+    end
+
+    context "when not given a `search_exact` option" do
+      it "falls back to the default of the deferred class" do
+        exact_deferred = Administrate::Field::Deferred.new(
+          double(search_exact?: true),
+        )
+        fuzzy_deferred = Administrate::Field::Deferred.new(
+          double(search_exact?: false),
+        )
+
+        expect(exact_deferred.search_exact?).to eq(true)
+        expect(fuzzy_deferred.search_exact?).to eq(false)
+      end
+    end
+  end
+
   describe "#==" do
     it "returns false for different deferred classes" do
       one = Administrate::Field::Deferred.new(String)
