@@ -1,0 +1,57 @@
+# Ask Arby (rinsed-review-bot) for a review on demand. Works on drafts too, which review.yml skips. Same
+# setup as review.yml — runs on the base branch (pull_request_target); keep both files' `with:` inputs in
+# sync.
+#
+# To ask for one: press the 🔄 re-request button next to `rinsed-review-bot` in the PR's Reviewers sidebar.
+# Arby lands in that sidebar by reviewing, so for a re-review the button is always already there; if Arby
+# has never reviewed the PR (a draft, which review.yml skips), pick it from the sidebar's gear instead.
+# Either way it must be Arby the *user* — requesting a team, even @rinsed-org/dev-and-review-bot, does not
+# trigger a review. A request that lands always creates a NEW run of this workflow, so if no new run
+# appears, it never reached Arby.
+#
+# Skipped runs here are normal: `review_requested` fires for every reviewer request, so a ruleset that
+# auto-requests teams when a PR opens leaves one skipped run per team. Only requests aimed at Arby itself
+# run. Re-running a skipped run does nothing — a re-run replays the original event, which still names a
+# team, so it skips again every time. Push a commit or re-request Arby instead. This check is not required
+# (that's review.yml's "Arby Review").
+name: Review (manual request)
+
+on:
+  pull_request_target:
+    types: [review_requested]
+
+# Read-only token: the workflow only reads the PR as data. The only credential that can write is Arby's own
+# PAT (org secret RINSED_REVIEW_BOT_TOKEN), and the action uses it solely to post the review.
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  review:
+    name: Arby Review (manual request)
+    # Team requests (like a ruleset's auto-request) have no requested_reviewer, so they skip here too.
+    if: github.event.requested_reviewer.login == 'rinsed-review-bot'
+    # Shares review.yml's group so a manual review and an automatic one never run at once. No cancelling
+    # here: cancelling an in-flight automatic run would kill the required "Arby Review" check without
+    # replacing it (this job reports under a different name), so a manual run queues instead. Job-level so
+    # skipped runs stay out of the group.
+    concurrency:
+      group: arby-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - name: Arby review
+        uses: rinsed-org/review-bot-workflows@v2
+        with:
+          # Org-level secrets, available to every rinsed-org repo. (Passed explicitly because a composite
+          # action can't read secrets on its own.)
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          review-bot-token: ${{ secrets.RINSED_REVIEW_BOT_TOKEN }}
+
+          # This is a public fork of thoughtbot/administrate, so anyone can open a PR here. Only our
+          # developers get a real verdict (approve / request changes); everyone else gets a comment only.
+          limit-approval-to: rinsed-org/development
+
+          # Only P0/P1 findings block approval (also the shared default, set explicitly for clarity).
+          blocking-severities: P0,P1
