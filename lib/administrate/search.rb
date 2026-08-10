@@ -120,9 +120,9 @@ module Administrate
         attribute_type = attribute_types[attr]
 
         search_term = if attribute_type.search_lower?
-          term.mb_chars.downcase
+          term.downcase
         else
-          term.mb_chars
+          term
         end
 
         if attribute_type.search_exact?
