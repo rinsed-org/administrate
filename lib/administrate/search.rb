@@ -158,7 +158,15 @@ module Administrate
     end
 
     def attribute_types
-      @dashboard.class.const_get(:ATTRIBUTE_TYPES)
+      # RINSED: upstream reads the ATTRIBUTE_TYPES constant, which bypasses
+      # `BaseDashboard#attribute_types`. rinsed-web overrides that method to
+      # add types at runtime (id/eid, folder_id, versions, http_requests), and
+      # `search_attributes` above already goes through it. Reading the
+      # constant here means a searchable runtime-added attribute is offered by
+      # search_attributes but missing from this hash -> NoMethodError on nil.
+      # TODO: upstream this; it is a consistency fix, not Rinsed-specific.
+      @dashboard.attribute_types
+      # END RINSED
     end
 
     def query_table_name(attr)

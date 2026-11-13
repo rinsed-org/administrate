@@ -80,6 +80,21 @@ describe Administrate::Search do
           }.freeze
         end
 
+        # Mirrors rinsed-web's BaseDashboard, which adds attribute types at
+        # runtime: `id` exists only on the instance, not in the constant.
+        class DynamicDashboard < Administrate::BaseDashboard
+          ATTRIBUTE_TYPES = {
+            name: Administrate::Field::String,
+            email: Administrate::Field::Email
+          }.freeze
+
+          def attribute_types
+            @attribute_types ||= {
+              id: Administrate::Field::Number.with_options(searchable: true)
+            }.merge(ATTRIBUTE_TYPES)
+          end
+        end
+
         class AssociationDashboard < Administrate::BaseDashboard
           ATTRIBUTE_TYPES = {
             role: Administrate::Field::BelongsTo.with_options(
@@ -238,6 +253,44 @@ describe Administrate::Search do
         "Test",
         "%test%"
       )
+    end
+
+    it "searches attributes that only exist on the dashboard instance" do
+      class User < ApplicationRecord; end
+      scoped_object = User.default_scoped
+      search = Administrate::Search.new(
+        scoped_object,
+        Administrate::RinsedSearchSpecMocks::DynamicDashboard.new,
+        "test"
+      )
+      expected_query = [
+        [
+          'LOWER(CAST("users"."id" AS CHAR(256))) LIKE ?',
+          'LOWER(CAST("users"."name" AS CHAR(256))) LIKE ?',
+          'LOWER(CAST("users"."email" AS CHAR(256))) LIKE ?'
+        ].join(" OR "),
+        "%test%",
+        "%test%",
+        "%test%"
+      ]
+      expect(scoped_object).to receive(:where).with(*expected_query)
+
+      search.run
+    ensure
+      remove_constants :User
+    end
+  end
+
+  describe "#attribute_types" do
+    it "reads from the dashboard instance, not the ATTRIBUTE_TYPES constant" do
+      class User < ApplicationRecord; end
+      dashboard = Administrate::RinsedSearchSpecMocks::DynamicDashboard.new
+      search = Administrate::Search.new(User.default_scoped, dashboard, "test")
+
+      expect(search.send(:attribute_types)).to eq(dashboard.attribute_types)
+      expect(search.send(:attribute_types)).to include(:id)
+    ensure
+      remove_constants :User
     end
   end
 end
