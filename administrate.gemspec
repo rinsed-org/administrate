@@ -16,7 +16,12 @@ Gem::Specification.new do |s|
   s.add_dependency "actionpack", ">= 6.0", "< 9.0"
   s.add_dependency "actionview", ">= 6.0", "< 9.0"
   s.add_dependency "activerecord", ">= 6.0", "< 9.0"
-  s.add_dependency "kaminari", "~> 1.2.2"
+  # RINSED: upstream pins `~> 1.2.2` (still the case on upstream main).
+  # rinsed-web locks kaminari 1.3.2, so the upstream constraint would force a
+  # downgrade of a gem the whole app paginates with. Drop this once upstream
+  # allows 1.3.
+  s.add_dependency "kaminari", ">= 1.2.2", "< 2"
+  # END RINSED
 
   s.description = <<~DESCRIPTION
     Administrate is a library for Rails that generates admin dashboards. These
