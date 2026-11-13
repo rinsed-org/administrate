@@ -24,6 +24,26 @@ module Administrate
         false
       end
 
+      # RINSED: per-field control over the SQL that Administrate::Search
+      # builds. Upstream always emits
+      # `LOWER(CAST(col AS CHAR(256))) LIKE '%term%'`, which no index can
+      # serve and which truncates long text; on our emails / text messages /
+      # support-agent conversations tables that is a full scan per search.
+      # The defaults below reproduce upstream's SQL exactly, so a dashboard
+      # that does not opt in (via `with_options`) is unaffected.
+      def self.search_skip_cast?
+        false
+      end
+
+      def self.search_exact?
+        false
+      end
+
+      def self.search_lower?
+        true
+      end
+      # END RINSED
+
       def self.sortable?
         true
       end

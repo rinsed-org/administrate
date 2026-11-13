@@ -41,6 +41,23 @@ module Administrate
         end
       end
 
+      # RINSED: `with_options(search_skip_cast:, search_exact:, search_lower:)`
+      # is how a dashboard opts a field out of upstream's unindexable search
+      # SQL (see Field::Base). Anything not given falls back to the field
+      # class, i.e. to upstream behaviour.
+      def search_skip_cast?
+        options.fetch(:search_skip_cast, deferred_class.search_skip_cast?)
+      end
+
+      def search_exact?
+        options.fetch(:search_exact, deferred_class.search_exact?)
+      end
+
+      def search_lower?
+        options.fetch(:search_lower, deferred_class.search_lower?)
+      end
+      # END RINSED
+
       def searchable_fields
         options.fetch(:searchable_fields)
       end

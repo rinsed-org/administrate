@@ -96,10 +96,40 @@ module Administrate
         table_name = query_table_name(attr)
         searchable_fields(attr).map do |field|
           column_name = column_to_query(field)
-          "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
+          # RINSED: upstream hardcodes
+          # "LOWER(CAST(#{table_name}.#{column_name} AS CHAR(256))) LIKE ?"
+          search_condition(attribute_types[attr], "#{table_name}.#{column_name}")
+          # END RINSED
         end.join(" OR ")
       end.join(" OR ")
     end
+
+    # RINSED: upstream's condition wraps the column in LOWER(CAST(...)) and
+    # matches with a leading-wildcard LIKE, so it can never use an index and
+    # the CAST truncates at 256 chars. Fields can opt out of each part
+    # (search_skip_cast / search_lower / search_exact, see Field::Base) so
+    # that searching a huge table by an indexed column stays an index lookup.
+    # With no options set this returns upstream's condition unchanged.
+    #
+    # `column` is built only from quoted identifiers that come from the
+    # dashboard, never from the search term, which stays a bound `?`.
+    def search_condition(attribute_type, column)
+      target = column
+      target = "CAST(#{target} AS CHAR(256))" unless attribute_type.search_skip_cast?
+      target = "LOWER(#{target})" if attribute_type.search_lower?
+
+      operator = attribute_type.search_exact? ? "=" : "LIKE"
+      "#{target} #{operator} ?"
+    end
+
+    # The bound value has to mirror search_condition: an un-LOWERed column
+    # must be compared with the term as typed, and `=` must not get the
+    # `%...%` wildcards (they would be matched literally).
+    def search_value(attribute_type)
+      value = attribute_type.search_lower? ? term.downcase : term
+      attribute_type.search_exact? ? value : "%#{value}%"
+    end
+    # END RINSED
 
     def searchable_fields(attr)
       return [attr] unless association_search?(attr)
@@ -108,10 +138,13 @@ module Administrate
     end
 
     def query_values
-      fields_count = search_attributes.sum do |attr|
-        searchable_fields(attr).count
+      # RINSED: upstream binds the same "%term%" for every condition. Ours
+      # differ per attribute (see search_value), and must stay in the same
+      # order and count as the `?`s emitted by query_template.
+      search_attributes.flat_map do |attr|
+        [search_value(attribute_types[attr])] * searchable_fields(attr).count
       end
-      ["%#{term.downcase}%"] * fields_count
+      # END RINSED
     end
 
     def search_attributes
