@@ -1,0 +1,94 @@
+---
+# Rinsed-only workflow. Upstream's main.yml tests Ruby 3.0-3.4 against Rails
+# 6.0-8.0 and is left byte-identical so it never conflicts on a rebase. This
+# fork has exactly one consumer (rinsed-web), and the combination it runs,
+# Ruby 4.0.x on Rails 8.1.x, is in neither axis of upstream's v1.0.0 matrix.
+# This job is what covers it.
+name: Rinsed tests
+on:
+  push:
+    branches:
+      - 'rinsed-v1.0.0'
+  pull_request:
+    branches:
+      - 'rinsed-v1.0.0'
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PGHOST: localhost
+      PGUSER: administrate
+      PGPASSWORD: administrate
+      # v1.0.0 ships no Rails 8.1 Appraisal and its Gemfile.lock pins Rails
+      # 8.0.3 / Ruby 3.4.6. The gemfile is derived at run time (see below)
+      # rather than committed, so the fork's diff against upstream stays out of
+      # Appraisals/gemfiles and rebases onto a newer upstream stay conflict-free.
+      BUNDLE_GEMFILE: gemfiles/rails81.gemfile
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: administrate
+          POSTGRES_DB: administrate_test
+          POSTGRES_PASSWORD: administrate
+        ports:
+           - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Setup the environment
+        run: cp .sample.env .env
+      - run: cp spec/example_app/config/database.yml.sample spec/example_app/config/database.yml
+      # Dropping the `ruby` line lets Ruby 4.0 use a gemfile generated for
+      # 3.4.6 (upstream's appraisal job does the same). `ruby-vips` is added
+      # because an unlocked resolve picks image_processing 2.x, which no
+      # longer pulls it in (upstream fixed its Appraisals the same way in
+      # 4946e71c, after v1.0.0).
+      #
+      # The two greps are guards: if upstream reshapes rails80.gemfile so that
+      # a sed no longer matches, the job would otherwise quietly test Rails
+      # 8.0 or refuse to bundle on Ruby 4.0 with a misleading error.
+      - name: Derive the Rails 8.1 gemfile
+        run: |
+          sed -e 's/^ruby\(.*\)//g' \
+              -e 's/^gem "rails", "~> 8.0"$/gem "rails", "~> 8.1.0"/' \
+              gemfiles/rails80.gemfile > gemfiles/rails81.gemfile
+          echo 'gem "ruby-vips"' >> gemfiles/rails81.gemfile
+          grep -q '"rails", "~> 8.1.0"' gemfiles/rails81.gemfile
+          if grep -q '^ruby' gemfiles/rails81.gemfile; then
+            echo "derived gemfile still pins a ruby version" >&2
+            exit 1
+          fi
+      # Workaround for https://github.com/ruby/rubygems/issues/9284, carried
+      # from upstream 629edf67 (after v1.0.0).
+      - name: Remove pre-installed Ruby 4.0
+        run: rm -rf /opt/hostedtoolcache/Ruby/4.0*
+      - name: Install libvips-dev
+        run: sudo apt-get -q update && sudo apt-get install -yq libvips-dev
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '4.0'
+      - name: Set up JS
+        uses: actions/setup-node@v6
+        with:
+          cache: yarn
+      - name: Install Ruby dependencies
+        run: bundle install
+      - name: Install JS dependencies
+        run: yarn install
+      - name: Setup the database
+        run: bundle exec rake db:setup
+      - name: Build assets
+        run: yarn run build && yarn run build:css
+      - name: Run tests
+        run: bundle exec rspec

@@ -1,0 +1,49 @@
+# Arby (rinsed-review-bot), our PR review bot. The review logic lives in the shared
+# rinsed-org/review-bot-workflows action; this repo's CODE_REVIEW.md / CLAUDE.md customize what it flags.
+# Runs on the base branch (pull_request_target), so a PR can't edit the workflow that reviews it.
+#
+# Asking Arby directly for a review is handled by review-manual-request.yml — keep both files'
+# `with:` inputs in sync.
+name: Review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Read-only token: the workflow only reads the PR as data. The only credential that can write is Arby's own
+# PAT (org secret RINSED_REVIEW_BOT_TOKEN), and the action uses it solely to post the review.
+permissions:
+  contents: read
+  pull-requests: read
+  issues: read
+
+jobs:
+  review:
+    # The required check is keyed on this name. Only this workflow produces it, so no skipped run elsewhere
+    # can stand in for a real review.
+    name: Arby Review
+    # Drafts skip — to review a draft anyway, request a review from Arby (review-manual-request.yml).
+    # Dependabot PRs run but do nothing (Dependabot's token can't read the secrets); the check still goes
+    # green.
+    if: github.event.pull_request.draft == false
+    # One review per PR at a time, shared with review-manual-request.yml: the newest run cancels older
+    # in-flight ones. Job-level so skipped runs stay out of the group.
+    concurrency:
+      group: arby-review-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Arby review
+        uses: rinsed-org/review-bot-workflows@v2
+        with:
+          # Org-level secrets, available to every rinsed-org repo. (Passed explicitly because a composite
+          # action can't read secrets on its own.)
+          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
+          review-bot-token: ${{ secrets.RINSED_REVIEW_BOT_TOKEN }}
+
+          # This is a public fork of thoughtbot/administrate, so anyone can open a PR here. Only our
+          # developers get a real verdict (approve / request changes); everyone else gets a comment only.
+          limit-approval-to: rinsed-org/development
+
+          # Only P0/P1 findings block approval (also the shared default, set explicitly for clarity).
+          blocking-severities: P0,P1
