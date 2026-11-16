@@ -54,16 +54,21 @@ jobs:
       # longer pulls it in (upstream fixed its Appraisals the same way in
       # 4946e71c, after v1.0.0).
       #
-      # The two greps are guards: if upstream reshapes rails80.gemfile so that
+      # i18n-tasks is pinned to 1.0.15, and every release below 1.1.0 caps
+      # Ruby at < 4.0, so the pin is loosened to ~> 1.1 for this job only.
+      #
+      # The greps are guards: if upstream reshapes rails80.gemfile so that
       # a sed no longer matches, the job would otherwise quietly test Rails
       # 8.0 or refuse to bundle on Ruby 4.0 with a misleading error.
       - name: Derive the Rails 8.1 gemfile
         run: |
           sed -e 's/^ruby\(.*\)//g' \
               -e 's/^gem "rails", "~> 8.0"$/gem "rails", "~> 8.1.0"/' \
+              -e 's/gem "i18n-tasks", "1.0.15"$/gem "i18n-tasks", "~> 1.1"/' \
               gemfiles/rails80.gemfile > gemfiles/rails81.gemfile
           echo 'gem "ruby-vips"' >> gemfiles/rails81.gemfile
           grep -q '"rails", "~> 8.1.0"' gemfiles/rails81.gemfile
+          grep -q '"i18n-tasks", "~> 1.1"' gemfiles/rails81.gemfile
           if grep -q '^ruby' gemfiles/rails81.gemfile; then
             echo "derived gemfile still pins a ruby version" >&2
             exit 1
