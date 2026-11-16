@@ -37,7 +37,9 @@ code outside it is either a new patch (needs a row here, in the same PR) or a mi
 
 Not gem code, but also carried: the review-bot workflows, this file, and `rinsed-tests.yml`, an added
 workflow that tests the app's Ruby / Rails (see [What CI covers](#what-ci-does-and-does-not-cover)).
-Upstream's own workflow files are left byte-identical so they never conflict on a rebase.
+Upstream's own workflow files are left byte-identical so they never conflict on a rebase. One
+test-app-only backport is carried for that workflow: `aa750464` (#2923), which makes the example app's
+docs pages render as HTML on Rails 8.1. It drops out at the first upstream release after 1.0.0.
 
 Things the old fork patched that are **deliberately not here** — do not reintroduce them in the fork;
 they now live in the app or are covered by upstream: selectize on custom fields, the bulk-select row-click
