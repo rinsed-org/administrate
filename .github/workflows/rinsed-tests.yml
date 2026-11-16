@@ -56,6 +56,8 @@ jobs:
       #
       # i18n-tasks is pinned to 1.0.15, and every release below 1.1.0 caps
       # Ruby at < 4.0, so the pin is loosened to ~> 1.1 for this job only.
+      # `ostruct` is added because upstream's polymorphic_spec requires it and
+      # Ruby 4.0 no longer ships it as a default gem.
       #
       # The greps are guards: if upstream reshapes rails80.gemfile so that
       # a sed no longer matches, the job would otherwise quietly test Rails
@@ -67,6 +69,7 @@ jobs:
               -e 's/gem "i18n-tasks", "1.0.15"$/gem "i18n-tasks", "~> 1.1"/' \
               gemfiles/rails80.gemfile > gemfiles/rails81.gemfile
           echo 'gem "ruby-vips"' >> gemfiles/rails81.gemfile
+          echo 'gem "ostruct"' >> gemfiles/rails81.gemfile
           grep -q '"rails", "~> 8.1.0"' gemfiles/rails81.gemfile
           grep -q '"i18n-tasks", "~> 1.1"' gemfiles/rails81.gemfile
           if grep -q '^ruby' gemfiles/rails81.gemfile; then
